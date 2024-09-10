@@ -1,1 +1,2 @@
-# group-stage-simulator
+# Group Stage Simulator
+
