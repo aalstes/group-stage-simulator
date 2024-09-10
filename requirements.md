@@ -10,7 +10,7 @@ Keep in mind the SOLID principles.
 
 Of course, it is also important that the functioning of the end result matches the specs.
 
-Create a new website.
+Create a new ASP.NET Core 8.0 website.
 
 Simulate the matches and results of a group of 4 teams. There are three rounds, so six matches in total.
 
