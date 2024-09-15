@@ -1,8 +1,75 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GroupStageSimulator.ViewModels.SimulationViewModel
+@{
+    ViewData["Title"] = "Group Stage Simulator";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Group Stage Simulator</h1>
+
+@using (Html.BeginForm("Simulate", "Home", FormMethod.Post))
+{
+    <button type="submit" class="btn btn-primary">Simulate Group Stage</button>
+}
+
+@if (Model?.MatchesByRound != null && Model.MatchesByRound.Any())
+{
+    <h2>Matches</h2>
+    @foreach (var round in Model.MatchesByRound.OrderBy(r => r.Key))
+    {
+        <h3>Round @round.Key</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Home Team</th>
+                    <th>Score</th>
+                    <th>Away Team</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in round.Value)
+                {
+                    <tr>
+                        <td>@match.HomeTeam.Name</td>
+                        <td>@match.HomeScore - @match.AwayScore</td>
+                        <td>@match.AwayTeam.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2>Standings</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Team</th>
+                <th>Played</th>
+                <th>Win</th>
+                <th>Draw</th>
+                <th>Loss</th>
+                <th>For</th>
+                <th>Against</th>
+                <th>-/+</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Standings.Count; i++)
+            {
+                var standing = Model.Standings[i];
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@standing.Team.Name</td>
+                    <td>@standing.MatchesPlayed</td>
+                    <td>@standing.Wins</td>
+                    <td>@standing.Draws</td>
+                    <td>@standing.Losses</td>
+                    <td>@standing.GoalsFor</td>
+                    <td>@standing.GoalsAgainst</td>
+                    <td>@standing.GoalDifference</td>
+                    <td>@standing.Points</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

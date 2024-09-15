@@ -31,7 +31,7 @@ namespace GroupStageSimulator.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     SimulationId = table.Column<int>(type: "INTEGER", nullable: false),
-                    RoundId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Round = table.Column<int>(type: "INTEGER", nullable: false),
                     HomeTeamId = table.Column<int>(type: "INTEGER", nullable: false),
                     AwayTeamId = table.Column<int>(type: "INTEGER", nullable: false),
                     HomeScore = table.Column<int>(type: "INTEGER", nullable: false),

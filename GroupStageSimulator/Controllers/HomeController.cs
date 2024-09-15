@@ -1,31 +1,39 @@
-using System.Diagnostics;
+using GroupStageSimulator.Services;
+using GroupStageSimulator.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using GroupStageSimulator.Models;
+using System.Linq;
 
-namespace GroupStageSimulator.Controllers;
-
-public class HomeController : Controller
+namespace GroupStageSimulator.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    public class HomeController : Controller
     {
-        _logger = logger;
-    }
+        private readonly SimulationService _simulationService;
 
-    public IActionResult Index()
-    {
-        return View();
-    }
+        public HomeController(SimulationService simulationService)
+        {
+            _simulationService = simulationService;
+        }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [HttpPost]
+        public async Task<IActionResult> Simulate()
+        {
+            var matches = await _simulationService.SimulateGroupStageAsync();
+            var simulationId = matches.First().SimulationId;
+            var standings = await _simulationService.GetStandingsAsync(simulationId);
+
+            var viewModel = new SimulationViewModel
+            {
+                MatchesByRound = matches.GroupBy(m => m.Round)
+                                        .ToDictionary(g => g.Key, g => g.ToList()),
+                Standings = standings
+            };
+
+            return View("Index", viewModel);
+        }
     }
 }
