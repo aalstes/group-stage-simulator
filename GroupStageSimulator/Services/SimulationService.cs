@@ -83,104 +83,46 @@ namespace GroupStageSimulator.Services
 
             var standings = CalculateStandings(matches);
 
-            // Sort standings
-            standings = standings
-                .OrderByDescending(s => s.Points)
-                .ThenByDescending(s => s.GoalDifference)
-                .ThenByDescending(s => s.GoalsFor)
-                .ToList();
-
-            // Handle head-to-head tiebreaker
-            for (int i = 0; i < standings.Count - 1; i++)
+            standings.Sort((a, b) =>
             {
-                if (standings[i].Points == standings[i + 1].Points &&
-                    standings[i].GoalDifference == standings[i + 1].GoalDifference &&
-                    standings[i].GoalsFor == standings[i + 1].GoalsFor)
+                // Primary sort by points (descending)
+                int comparison = b.Points.CompareTo(a.Points);
+                if (comparison != 0) return comparison;
+
+                // Secondary sort by goal difference (descending)
+                comparison = b.GoalDifference.CompareTo(a.GoalDifference);
+                if (comparison != 0) return comparison;
+
+                // Tertiary sort by goals for (descending)
+                comparison = b.GoalsFor.CompareTo(a.GoalsFor);
+                if (comparison != 0) return comparison;
+
+                // Quaternary sort by goals against (ascending)
+                comparison = a.GoalsAgainst.CompareTo(b.GoalsAgainst);
+                if (comparison != 0) return comparison;
+
+                // If still tied, use head-to-head result
+                var headToHeadMatch = matches.FirstOrDefault(m =>
+                    (m.HomeTeam.Id == a.Team.Id && m.AwayTeam.Id == b.Team.Id) ||
+                    (m.HomeTeam.Id == b.Team.Id && m.AwayTeam.Id == a.Team.Id));
+
+                if (headToHeadMatch != null)
                 {
-                    var headToHeadWinner = GetHeadToHeadWinner(matches, standings[i].Team.Id, standings[i + 1].Team.Id);
-                    if (headToHeadWinner == standings[i + 1].Team.Id)
+                    if (headToHeadMatch.HomeTeam.Id == a.Team.Id)
                     {
-                        var temp = standings[i];
-                        standings[i] = standings[i + 1];
-                        standings[i + 1] = temp;
-                    }
-                }
-            }
-
-            return standings;
-        }
-
-        private int GetHeadToHeadWinner(List<Match> matches, int team1Id, int team2Id)
-        {
-            var headToHeadMatches = matches.Where(m =>
-                (m.HomeTeamId == team1Id && m.AwayTeamId == team2Id) ||
-                (m.HomeTeamId == team2Id && m.AwayTeamId == team1Id)).ToList();
-
-            int team1Points = 0, team2Points = 0;
-
-            foreach (var match in headToHeadMatches)
-            {
-                if (match.HomeTeamId == team1Id)
-                {
-                    team1Points += match.HomeScore > match.AwayScore ? 3 : (match.HomeScore == match.AwayScore ? 1 : 0);
-                    team2Points += match.AwayScore > match.HomeScore ? 3 : (match.AwayScore == match.HomeScore ? 1 : 0);
-                }
-                else
-                {
-                    team2Points += match.HomeScore > match.AwayScore ? 3 : (match.HomeScore == match.AwayScore ? 1 : 0);
-                    team1Points += match.AwayScore > match.HomeScore ? 3 : (match.AwayScore == match.HomeScore ? 1 : 0);
-                }
-            }
-
-            return team1Points > team2Points ? team1Id : team2Id;
-        }
-
-        private int CompareTeamStandings(TeamStanding a, TeamStanding b, List<Match> matches)
-        {
-            // Compare points
-            if (a.Points != b.Points)
-                return b.Points.CompareTo(a.Points);
-
-            // Compare goal difference
-            if (a.GoalDifference != b.GoalDifference)
-                return b.GoalDifference.CompareTo(a.GoalDifference);
-
-            // Compare goals for
-            if (a.GoalsFor != b.GoalsFor)
-                return b.GoalsFor.CompareTo(a.GoalsFor);
-
-            // Compare goals against
-            if (a.GoalsAgainst != b.GoalsAgainst)
-                return a.GoalsAgainst.CompareTo(b.GoalsAgainst);
-
-            // Head-to-head result
-            var headToHeadMatches = matches.Where(m =>
-                (m.HomeTeamId == a.Team.Id && m.AwayTeamId == b.Team.Id) ||
-                (m.HomeTeamId == b.Team.Id && m.AwayTeamId == a.Team.Id)).ToList();
-
-            if (headToHeadMatches.Any())
-            {
-                int aScore = 0, bScore = 0;
-                foreach (var match in headToHeadMatches)
-                {
-                    if (match.HomeTeamId == a.Team.Id)
-                    {
-                        aScore += match.HomeScore;
-                        bScore += match.AwayScore;
+                        return headToHeadMatch.AwayScore.CompareTo(headToHeadMatch.HomeScore); // descending order
                     }
                     else
                     {
-                        aScore += match.AwayScore;
-                        bScore += match.HomeScore;
+                        return headToHeadMatch.HomeScore.CompareTo(headToHeadMatch.AwayScore); // descending order
                     }
                 }
 
-                if (aScore != bScore)
-                    return bScore.CompareTo(aScore);
-            }
+                // If still tied
+                return 0;
+            });
 
-            // If everything is equal, return 0
-            return 0;
+            return standings;
         }
 
         private List<TeamStanding> CalculateStandings(List<Match> matches)
