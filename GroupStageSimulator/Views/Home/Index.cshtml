@@ -5,10 +5,12 @@
 
 <h1>Group Stage Simulator</h1>
 
-@using (Html.BeginForm("Simulate", "Home", FormMethod.Post))
-{
-    <button type="submit" class="btn btn-primary">Simulate Group Stage</button>
-}
+<div class="simulate-button-container my-4">
+    @using (Html.BeginForm("Simulate", "Home", FormMethod.Post))
+    {
+        <button type="submit" class="btn btn-primary">Simulate Group Stage</button>
+    }
+</div>
 
 @if (Model?.MatchesByRound != null && Model.MatchesByRound.Any())
 {
