@@ -25,16 +25,16 @@ namespace GroupStageSimulator.Services
                 switch (round)
                 {
                     case 1:
-                        matches.Add(SimulateMatch(teams[0], teams[1], round, simulationId));
-                        matches.Add(SimulateMatch(teams[2], teams[3], round, simulationId));
+                        matches.Add(SimulateMatch(teams[0], teams[3], round, simulationId));
+                        matches.Add(SimulateMatch(teams[2], teams[1], round, simulationId));
                         break;
                     case 2:
-                        matches.Add(SimulateMatch(teams[0], teams[2], round, simulationId));
-                        matches.Add(SimulateMatch(teams[1], teams[3], round, simulationId));
+                        matches.Add(SimulateMatch(teams[1], teams[0], round, simulationId));
+                        matches.Add(SimulateMatch(teams[3], teams[2], round, simulationId));
                         break;
                     case 3:
-                        matches.Add(SimulateMatch(teams[0], teams[3], round, simulationId));
-                        matches.Add(SimulateMatch(teams[1], teams[2], round, simulationId));
+                        matches.Add(SimulateMatch(teams[3], teams[1], round, simulationId));
+                        matches.Add(SimulateMatch(teams[2], teams[0], round, simulationId));
                         break;
                 }
             }
